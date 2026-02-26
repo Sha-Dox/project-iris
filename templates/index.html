@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Iris</title>
+  <style>
+    /* Brand palette ─────────────────────────────────────────── */
+    :root {
+      /* brand dark (from iris.svg background) */
+      --brand-dark:   #0d031b;
+      --brand-light:  #fafafa;
+
+      /* light theme */
+      --bg:           #f3f4f6;
+      --panel:        #ffffff;
+      --panel-muted:  #f9fafb;
+      --text:         #111827;
+      --muted:        #6b7280;
+      --border:       #e5e7eb;
+      --primary:      #4f35b8;   /* purple accent matching brand */
+      --danger:       #b91c1c;
+      --danger-soft:  #fee2e2;
+      --success:      #166534;
+      --success-soft: #dcfce7;
+      --warning:      #92400e;
+      --warning-soft: #fef3c7;
+      --radius:       12px;
+      --shadow:       0 8px 28px rgba(13,3,27,0.10);
+      --input-bg:     #ffffff;
+      --input-border: #d1d5db;
+
+      /* header always uses brand dark */
+      --header-bg:    var(--brand-dark);
+      --header-text:  #fafafa;
+    }
+
+    [data-theme="dark"] {
+      --bg:           #0d031b;
+      --panel:        #160930;
+      --panel-muted:  #1c1040;
+      --text:         #e5e7eb;
+      --muted:        #9ca3af;
+      --border:       #2e1f55;
+      --primary:      #7c5cfc;
+      --danger:       #ef4444;
+      --danger-soft:  #2a0f0f;
+      --success:      #22c55e;
+      --success-soft: #0a1f10;
+      --warning:      #f59e0b;
+      --warning-soft: #1f1500;
+      --shadow:       0 8px 28px rgba(0,0,0,0.55);
+      --input-bg:     #0d031b;
+      --input-border: #2e1f55;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--bg);
+      transition: background 0.2s;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* ── App shell ─────────────────────────────── */
+    .app {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 16px 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    /* ── Header (always brand-dark) ────────────── */
+    .site-header {
+      background: var(--brand-dark);
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-img {
+      height: 48px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-text {
+      color: var(--brand-light);
+    }
+
+    .logo-text h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .logo-text p {
+      margin: 3px 0 0;
+      font-size: 11px;
+      color: rgba(250,250,250,0.55);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Dark-mode toggle ─────────────────────── */
+    .dm-toggle {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--brand-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s ease, opacity 0.1s ease;
+    }
+    .dm-toggle:hover  { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+    .dm-toggle:active { transform: translateY(0); }
+
+    /* ── Card ──────────────────────────────────── */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    /* ── Notices ───────────────────────────────── */
+    .notice {
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+    .notice.success { background: var(--success-soft); color: var(--success); border-color: #4ade80; }
+    .notice.error   { background: var(--danger-soft);  color: var(--danger);  border-color: #f87171; }
+
+    /* ── Layouts ───────────────────────────────── */
+    .layout-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Typography ────────────────────────────── */
+    h2 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
+    h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+
+    /* ── Fields ────────────────────────────────── */
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124,92,252,0.18);
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    /* ── Actions row ───────────────────────────── */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .actions input[type="text"] { flex: 1; min-width: 180px; margin-top: 0; }
+
+    /* ── Buttons ───────────────────────────────── */
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      background: var(--primary);
+      white-space: nowrap;
+      transition: opacity 0.12s ease, transform 0.1s ease;
+    }
+    button:hover  { opacity: 0.85; transform: translateY(-1px); }
+    button:active { transform: translateY(0); opacity: 1; }
+    button.secondary { background: #334155; }
+    button.danger    { background: var(--danger); }
+    button.ghost     { background: var(--panel-muted); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Pill ──────────────────────────────────── */
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .pill.running { color: var(--success); background: var(--success-soft); border: 1px solid #4ade80; }
+    .pill.stopped { color: var(--warning); background: var(--warning-soft); border: 1px solid #fbbf24; }
+
+    /* ── Meta ──────────────────────────────────── */
+    .meta { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
+
+    /* ── Profile preview ───────────────────────── */
+    .preview {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--panel-muted);
+    }
+
+    /* ── Stats row ─────────────────────────────── */
+    .stats {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 8px;
+    }
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      padding: 10px;
+      text-align: center;
+    }
+    .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat .value { margin-top: 4px; font-size: 16px; font-weight: 700; }
+
+    /* ── Table ─────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* ── Feed lists ────────────────────────────── */
+    .list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .list-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-muted);
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    /* ── Settings collapsible ──────────────────── */
+    .settings-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .settings-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: none;
+      border: none;
+      border-radius: 0;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+      transform: none;
+      opacity: 1;
+    }
+    .settings-toggle:hover  { background: var(--panel-muted); opacity: 1; transform: none; }
+    .settings-toggle:active { background: var(--panel-muted); transform: none; opacity: 1; }
+
+    .settings-chevron {
+      font-size: 12px;
+      transition: transform 0.22s ease;
+      color: var(--muted);
+    }
+    .settings-card[open] .settings-chevron { transform: rotate(180deg); }
+
+    .settings-body { padding: 0 20px 20px; display: none; }
+    .settings-card[open] .settings-body { display: block; }
+
+    .setting-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+
+    .setting-item {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-muted);
+    }
+    .setting-item .field { margin-bottom: 0; }
+
+    .setting-help { margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+    .tag {
+      margin-left: 6px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #f87171;
+      color: var(--danger);
+      background: var(--panel);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-weight: 700;
+    }
+
+    /* ── Responsive ────────────────────────────── */
+    @media (max-width: 1000px) {
+      .layout-2 { grid-template-columns: 1fr; }
+      .stats     { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 780px) {
+      .setting-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Branded header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <img class="logo-img" src="/static/iristransparentbh.svg" alt="Project Iris logo">
+        <div class="logo-text">
+          <h1>Project Iris</h1>
+          <p>TikTok intelligence &amp; monitoring platform</p>
+        </div>
+      </div>
+      <button class="dm-toggle" onclick="toggleDarkMode()" type="button" title="Toggle dark mode">
+        <span id="dm-icon">🌙</span> <span id="dm-label">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app">
+    {% if status_message %}
+      <section class="notice {{ status_kind }}">{{ status_message }}</section>
+    {% endif %}
+
+    <section class="layout-2">
+      <article class="card">
+        <h2>Instant profile check</h2>
+        <form method="post">
+          <input type="hidden" name="action" value="manual_check">
+          <div class="field">
+            <label for="manual-username">TikTok username</label>
+            <input
+              id="manual-username"
+              type="text"
+              name="username"
+              value="{{ username }}"
+              placeholder="e.g. account_name"
+              autocomplete="off"
+              required
+            >
+          </div>
+          <button type="submit">Check</button>
+        </form>
+
+        {% if manual_error %}
+          <div class="notice error" style="margin-top: 12px;">{{ manual_error }}</div>
+        {% endif %}
+
+        {% if manual_result %}
+          <div class="preview">
+            <h3>@{{ manual_result.username }}{% if manual_result.verified %} ✓{% endif %}</h3>
+            <div class="meta">
+              nickname: {{ manual_result.nickname or "-" }}<br>
+              bio: {{ manual_result.bio or "-" }}<br>
+              profile: <a href="{{ manual_result.profile_url }}" target="_blank">{{ manual_result.profile_url }}</a>
+            </div>
+            <div class="stats">
+              <div class="stat"><div class="label">Followers</div><div class="value">{{ "{:,}".format(manual_result.followers or 0) }}</div></div>
+              <div class="stat"><div class="label">Following</div><div class="value">{{ "{:,}".format(manual_result.following or 0) }}</div></div>
+              <div class="stat"><div class="label">Likes</div><div class="value">{{ "{:,}".format(manual_result.likes or 0) }}</div></div>
+              <div class="stat"><div class="label">Videos</div><div class="value">{{ "{:,}".format(manual_result.videos_count or 0) }}</div></div>
+            </div>
+          </div>
+        {% endif %}
+      </article>
+
+      <article class="card">
+        <h2>Monitor controls</h2>
+        <span class="pill {% if monitor_status.running %}running{% else %}stopped{% endif %}">
+          {% if monitor_status.running %}running{% else %}stopped{% endif %}
+        </span>
+        <div class="meta">
+          interval: <span class="mono">{{ monitor_status.interval_seconds }}s</span><br>
+          last started: <span class="mono">{{ monitor_status.last_run_started_at or "-" }}</span><br>
+          last finished: <span class="mono">{{ monitor_status.last_run_finished_at or "-" }}</span>
+        </div>
+        {% if monitor_status.last_run_summary %}
+          <div class="meta">
+            last cycle: checked {{ monitor_status.last_run_summary.checked }}/{{ monitor_status.last_run_summary.accounts }},
+            failed {{ monitor_status.last_run_summary.failed }}
+          </div>
+        {% endif %}
+
+        <div class="actions">
+          <form method="post">
+            <input type="hidden" name="action" value="run_monitor_now">
+            <button type="submit">Run cycle now</button>
+          </form>
+          {% if monitor_status.running %}
+            <form method="post">
+              <input type="hidden" name="action" value="stop_monitor">
+              <button type="submit" class="danger">Stop monitor</button>
+            </form>
+          {% else %}
+            <form method="post">
+              <input type="hidden" name="action" value="start_monitor">
+              <button type="submit" class="secondary">Start monitor</button>
+            </form>
+          {% endif %}
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Watchlist</h2>
+      <form method="post">
+        <input type="hidden" name="action" value="add_watch">
+        <div class="actions">
+          <input
+            type="text"
+            name="watch_username"
+            value="{{ watch_username }}"
+            placeholder="Add TikTok account to watchlist"
+            autocomplete="off"
+            required
+          >
+          <button type="submit">Add account</button>
+        </div>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Followers</th>
+            <th>Following</th>
+            <th>Likes</th>
+            <th>Videos</th>
+            <th>Last checked</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if watchlist %}
+            {% for item in watchlist %}
+              <tr>
+                <td>@{{ item.username }}</td>
+                <td>{{ "{:,}".format(item.followers or 0) }}</td>
+                <td>{{ "{:,}".format(item.following or 0) }}</td>
+                <td>{{ "{:,}".format(item.likes or 0) }}</td>
+                <td>{{ "{:,}".format(item.videos_count or 0) }}</td>
+                <td class="mono">{{ item.last_checked_at or "-" }}</td>
+                <td>
+                  <div class="actions" style="margin-top:0;">
+                    <form method="post">
+                      <input type="hidden" name="action" value="check_watch_now">
+                      <input type="hidden" name="watch_username" value="{{ item.username }}">
+                      <button type="submit" class="ghost">Check</button>
+                    </form>
+                    <form method="post">
+                      <input type="hidden" name="action" value="remove_watch">
+                      <input type="hidden" name="watch_username" value="{{ item.username }}">
+                      <button type="submit" class="danger">Remove</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" style="color:var(--muted);">No accounts in watchlist.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="layout-2">
+      <article class="card">
+        <h2>Recent change events</h2>
+        <ul class="list">
+          {% if events %}
+            {% for event in events %}
+              <li class="list-item">
+                <strong>@{{ event.username }}</strong> — {{ event.message }}
+                <div class="meta mono">{{ event.detected_at }}</div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-item" style="color:var(--muted);">No change events recorded.</li>
+          {% endif %}
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Recent failures</h2>
+        <ul class="list">
+          {% if failures %}
+            {% for failure in failures %}
+              <li class="list-item">
+                <strong>@{{ failure.username }}</strong>
+                <div class="meta mono">{{ failure.checked_at }}</div>
+                <div class="meta">{{ failure.error }}</div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-item" style="color:var(--muted);">No failures recorded.</li>
+          {% endif %}
+        </ul>
+      </article>
+    </section>
+
+    <!-- Settings — collapsible, at bottom -->
+    <div class="settings-card" id="settings-card">
+      <button class="settings-toggle" onclick="toggleSettings()" type="button" aria-expanded="false">
+        <span>⚙ Settings</span>
+        <span class="settings-chevron">▼</span>
+      </button>
+      <div class="settings-body" id="settings-body">
+        <form method="post">
+          <input type="hidden" name="action" value="save_settings">
+          <div class="setting-grid">
+            {% for setting in settings_rows %}
+              <div class="setting-item">
+                {% if setting.type == "bool" %}
+                  <label class="checkbox" for="{{ setting.key }}">
+                    <input
+                      id="{{ setting.key }}"
+                      type="checkbox"
+                      name="{{ setting.key }}"
+                      value="1"
+                      {% if setting.value %}checked{% endif %}
+                    >
+                    <span>
+                      {{ setting.label }}
+                      {% if setting.restart_required %}<span class="tag">restart</span>{% endif %}
+                    </span>
+                  </label>
+                {% else %}
+                  <div class="field">
+                    <label for="{{ setting.key }}">
+                      {{ setting.label }}
+                      {% if setting.restart_required %}<span class="tag">restart</span>{% endif %}
+                    </label>
+                    <input
+                      id="{{ setting.key }}"
+                      type="number"
+                      name="{{ setting.key }}"
+                      value="{{ setting.value }}"
+                      {% if setting.min is not none %}min="{{ setting.min }}"{% endif %}
+                      {% if setting.max is not none %}max="{{ setting.max }}"{% endif %}
+                      required
+                    >
+                  </div>
+                {% endif %}
+                <div class="setting-help">{{ setting.description }}</div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="actions">
+            <button type="submit" class="secondary">Save all settings</button>
+          </div>
+        </form>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:18px 0 14px;">
+        <div style="font-size:13px;color:var(--danger);font-weight:600;margin-bottom:6px;">⚠ Danger zone</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+          Permanently removes all watchlist accounts, snapshots, events, and failures. Settings are kept.
+        </div>
+        <form method="post">
+          <input type="hidden" name="action" value="reset_monitor_data">
+          <button type="submit" class="danger">Clear all monitor data</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── Dark mode ──────────────────────────────────────────────────
+    const html    = document.documentElement;
+    const dmIcon  = document.getElementById('dm-icon');
+    const dmLabel = document.getElementById('dm-label');
+
+    function applyTheme(dark) {
+      html.setAttribute('data-theme', dark ? 'dark' : 'light');
+      dmIcon.textContent  = dark ? '☀️' : '🌙';
+      dmLabel.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('iris-theme', dark ? 'dark' : 'light');
+    }
+
+    function toggleDarkMode() {
+      applyTheme(html.getAttribute('data-theme') !== 'dark');
+    }
+
+    (function () {
+      const saved = localStorage.getItem('iris-theme');
+      if (saved) { applyTheme(saved === 'dark'); }
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) { applyTheme(true); }
+    })();
+
+    // ── Settings expand / collapse ─────────────────────────────────
+    function toggleSettings() {
+      const card   = document.getElementById('settings-card');
+      const btn    = card.querySelector('.settings-toggle');
+      const isOpen = card.hasAttribute('open');
+      if (isOpen) { card.removeAttribute('open'); btn.setAttribute('aria-expanded','false'); }
+      else        { card.setAttribute('open','');  btn.setAttribute('aria-expanded','true');  }
+      localStorage.setItem('iris-settings-open', isOpen ? '0' : '1');
+    }
+
+    (function () {
+      if (localStorage.getItem('iris-settings-open') === '1') {
+        const card = document.getElementById('settings-card');
+        card.setAttribute('open','');
+        card.querySelector('.settings-toggle').setAttribute('aria-expanded','true');
+      }
+    })();
+  </script>
+</body>
+</html>
