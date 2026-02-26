@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="iristransparentbh.svg" width="200" alt="Project Iris" style="background:#0d031b;padding:16px;border-radius:12px;">
+  <img src="static/iristransparentbh.svg" width="200" alt="Project Iris" style="background:#0d031b;padding:16px;border-radius:12px;">
 </p>
 
 <h1 align="center">Project Iris</h1>
