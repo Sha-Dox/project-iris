@@ -36,7 +36,7 @@ Built with Python, Flask, SQLite, and [Scrapling](https://github.com/D4Vinci/Scr
 ### 1. Clone and set up a virtual environment
 
 ```bash
-git clone <repo-url> project-iris
+git clone https://github.com/Sha-Dox/project-iris
 cd project-iris
 python3 -m venv .venv
 source .venv/bin/activate
